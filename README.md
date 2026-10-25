@@ -1,10 +1,10 @@
-# dsh-llm-text (the llm-chat-text plugin)
+# free2agent (the dsh-llm-text plugin)
 
 <div align="right"><b>English</b> · <a href="README.zh-CN.md">中文</a></div>
 
-**A deepseek-harness plugin that connects pure-text chat models (models with only `/chat/completions` and no native tool calling) to the dsh kernel.**
+**Turn the web's free models into full agents.** The free models on DeepSeek / Kimi / Qwen / GLM web pages, once bridged into OpenAI-compatible endpoints by projects like [DeepSeek-Free-API](https://github.com/LLM-Red-Team/deepseek-free-api) and [Chat2API](https://github.com/xiaoY233/Chat2API) (OpenRouter's `:free`, SiliconFlow's free tier, and local Ollama alike), are all **pure-text models without native function calling** — in most tools they can only chat. This plugin connects them to the deepseek-harness kernel: dsh's agent loop, every built-in tool (bash, read/write, glob/grep, todo, subagents…), the Web UI, and session persistence keep working as-is, so free models can run commands, read and write files, and do real coding work.
 
-The dsh agent loop, every built-in tool (bash, read/write, glob/grep, todo, subagents…), the Web UI, and session persistence all keep working as-is. This plugin does one thing: it renders dsh's tool schemas into a text protocol for the model, and turns the `<tool_call>` blocks in the model's reply back into native tool-call stream chunks.
+The mechanism is one thing: dsh's tool schemas are rendered into a `<tool_call>` text protocol for the model, and the `<tool_call>` blocks in the model's reply are turned back into native tool-call stream chunks.
 
 ```
 dsh kernel (agent loop / tools / Web UI / sessions)
@@ -31,7 +31,7 @@ cd D:\Dsh-Chat-Plugin
 node setup.mjs          # link the peer dependencies from the dsh installation into this project (once)
 ```
 
-Edit `cordis.patch.yml` with your models (a DeepSeek example ships by default):
+Edit `cordis.patch.yml` with your models. Free-source examples: web-page bridges (DeepSeek-Free-API serves a local OpenAI-compatible endpoint), OpenRouter `:free`, local Ollama (subject to each site's current policy):
 
 ```yaml
 - insert:
@@ -39,17 +39,32 @@ Edit `cordis.patch.yml` with your models (a DeepSeek example ships by default):
       name: './plugin/src/index.ts'
       config:
         providers:
-          chat-text:
-            displayName: Chat Models
-            baseURL: https://api.deepseek.com/v1
-            apiKeyEnv: DEEPSEEK_API_KEY
+          # A local endpoint bridged by DeepSeek-Free-API / Chat2API
+          web-deepseek:
+            displayName: DeepSeek Web
+            baseURL: http://127.0.0.1:8000/v1
+            apiKey: bridge-token            # the bridge's own auth token
             contextWindow: 128000
             models:
               - id: deepseek-chat
-                name: DeepSeek Chat
+                name: DeepSeek V3
+          # OpenRouter free tier
+          openrouter:
+            displayName: OpenRouter Free
+            baseURL: https://openrouter.ai/api/v1
+            apiKeyEnv: OPENROUTER_API_KEY
+            models:
+              - id: deepseek/deepseek-chat-v3.1:free
+          # Local models
+          ollama:
+            displayName: Local Ollama
+            baseURL: http://127.0.0.1:11434/v1
+            noAuth: true
+            models:
+              - id: qwen3:32b
 - id: agent-default-model
   config:
-    provider: chat-text
+    provider: web-deepseek
     model: deepseek-chat
 ```
 

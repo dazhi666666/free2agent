@@ -1,10 +1,10 @@
-# dsh-llm-text（llm-chat-text 插件）
+# free2agent（dsh-llm-text 插件）
 
 <div align="right"><b>中文</b> · <a href="README.md">English</a></div>
 
-**把纯文本对话模型（只有 `/chat/completions`、没有原生工具调用的模型）接入 deepseek-harness 内核的插件。**
+**把网页端的免费模型用成完整的 agent。** DeepSeek / Kimi / Qwen / GLM 网页端白送的模型，经 [DeepSeek-Free-API](https://github.com/LLM-Red-Team/deepseek-free-api)、[Chat2API](https://github.com/xiaoY233/Chat2API) 这类项目桥接成 OpenAI 兼容接口后（OpenRouter 的 `:free`、SiliconFlow 免费档、本地 Ollama 同理），全都是**不会函数调用的纯文本模型**——在别的工具里只能聊天。本插件把它们接进 deepseek-harness 内核：dsh 的 agent loop、全部内置工具（bash、read/write、glob/grep、todo、subagent…）、Web UI、会话持久化照常工作，免费模型也能跑命令、读写文件、干代码活。
 
-dsh 的 agent loop、全部内置工具（bash、read/write、glob/grep、todo、subagent…）、Web UI、会话持久化全部照常工作——本插件只做一件事：把 dsh 的工具 schema 渲染成文本协议交给模型，再把模型回复里的 `<tool_call>` 块转回原生工具调用流。
+原理只有一件事：把 dsh 的工具 schema 渲染成 `<tool_call>` 文本协议交给模型，再把模型回复里的 `<tool_call>` 块转回原生工具调用流。
 
 ```
 dsh 内核（agent loop / 工具 / Web UI / 会话）
@@ -31,7 +31,7 @@ cd D:\Dsh-Chat-Plugin
 node setup.mjs          # 把 dsh 安装里的 peer 依赖链接进本项目（一次性）
 ```
 
-编辑 `cordis.patch.yml`，配置你的模型（默认给了 DeepSeek 示例）：
+编辑 `cordis.patch.yml`，配置你的模型。免费来源示例：网页端桥接（DeepSeek-Free-API 起一个本地 OpenAI 兼容服务）、OpenRouter `:free`、本地 Ollama（以各站点当前政策为准）：
 
 ```yaml
 - insert:
@@ -39,17 +39,32 @@ node setup.mjs          # 把 dsh 安装里的 peer 依赖链接进本项目（�
       name: './plugin/src/index.ts'
       config:
         providers:
-          chat-text:
-            displayName: 对话模型
-            baseURL: https://api.deepseek.com/v1
-            apiKeyEnv: DEEPSEEK_API_KEY
+          # DeepSeek-Free-API / Chat2API 桥接出的本地接口
+          web-deepseek:
+            displayName: DeepSeek 网页端
+            baseURL: http://127.0.0.1:8000/v1
+            apiKey: bridge-token            # 桥接项目自己的鉴权 token
             contextWindow: 128000
             models:
               - id: deepseek-chat
-                name: DeepSeek Chat
+                name: DeepSeek V3
+          # OpenRouter 免费档
+          openrouter:
+            displayName: OpenRouter 免费
+            baseURL: https://openrouter.ai/api/v1
+            apiKeyEnv: OPENROUTER_API_KEY
+            models:
+              - id: deepseek/deepseek-chat-v3.1:free
+          # 本地模型
+          ollama:
+            displayName: 本地 Ollama
+            baseURL: http://127.0.0.1:11434/v1
+            noAuth: true
+            models:
+              - id: qwen3:32b
 - id: agent-default-model
   config:
-    provider: chat-text
+    provider: web-deepseek
     model: deepseek-chat
 ```
 
