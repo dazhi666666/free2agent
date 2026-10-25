@@ -1,0 +1,39 @@
+# llm-chat-text overlay：把纯文本对话模型接入 dsh 内核。
+#
+# 用法（无需安装、无需建 profile）：
+#   dsh --patch D:\Dsh-Chat-Plugin\cordis.patch.yml web
+#
+# 条目里的相对路径相对本文件解析，所以整个项目目录可以随处移动。
+# 改 config 保存即可，dsh 会自动重载本插件（模型清单增减原子换绑）。
+- insert:
+    - id: llm-chat-text
+      name: './plugin/src/index.ts'
+      config:
+        providers:
+          # 路由名 = provider id（会话、默认模型配置都用它；小写字母数字-_）
+          chat-text:
+            displayName: 对话模型
+            baseURL: https://api.deepseek.com/v1
+            # 密钥三选一：apiKeyEnv（环境变量）/ apiKey（内联）/ noAuth: true（本地服务）
+            apiKeyEnv: DEEPSEEK_API_KEY
+            contextWindow: 128000
+            # 需要代理时：proxy: http://127.0.0.1:10808
+            models:
+              - id: deepseek-chat
+                name: DeepSeek Chat
+              - id: deepseek-reasoner
+                name: DeepSeek Reasoner
+          # 可以配多个路由，例如本地 Ollama：
+          # local:
+          #   displayName: 本地模型
+          #   baseURL: http://127.0.0.1:11434/v1
+          #   noAuth: true
+          #   contextWindow: 32000
+          #   models:
+          #     - id: qwen3:32b
+
+# 新会话的默认模型（也可以在 dsh 模型选择器里手动选择；选择器会列出上面的全部模型）
+- id: agent-default-model
+  config:
+    provider: chat-text
+    model: deepseek-chat

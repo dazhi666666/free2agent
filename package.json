@@ -1,0 +1,20 @@
+{
+  "name": "dsh-llm-text",
+  "description": "llm-chat-text: 纯文本对话模型接入 dsh 内核（OpenAI 兼容 /chat/completions + 文本工具协议）",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24.9.0"
+  },
+  "scripts": {
+    "test": "node --test test.mjs",
+    "e2e": "node test/e2e-headless.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-llm": "*",
+    "@deepseek-ai/schemastery": "*"
+  },
+  "license": "MIT"
+}
