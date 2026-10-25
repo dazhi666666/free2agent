@@ -1,0 +1,54 @@
+{
+  "format": 1,
+  "title": {
+    "en": "dazhi666666 plugins",
+    "zh": "dazhi 的插件"
+  },
+  "description": {
+    "en": "free2agent and friends",
+    "zh": "免费模型工具集"
+  },
+  "plugins": [
+    {
+      "name": "@dazhi666666/dsh-llm-text",
+      "title": {
+        "en": "free2agent",
+        "zh": "free2agent · 纯文本模型接入"
+      },
+      "description": {
+        "en": "Turn free pure-text models into full dsh agents via the <tool_call> text protocol.",
+        "zh": "把网页端免费模型用成完整 agent：<tool_call> 文本协议让不会函数调用的模型也能用 dsh 全套工具。"
+      },
+      "icon": "icons/free2agent.svg",
+      "author": "dazhi666666",
+      "homepage": "https://github.com/dazhi666666/free2agent",
+      "repository": {
+        "url": "https://github.com/dazhi666666/free2agent"
+      },
+      "versions": [
+        {
+          "version": "0.1.1",
+          "publishTimestamp": 1792922637,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/dazhi666666/free2agent",
+            "commit": "4af93d00fa30c0f94ef732d59061e988674c5f16"
+          },
+          "engines": {
+            "dsh": ">=0.2.0-rc.2"
+          }
+        },
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1792922637,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.0-rc.2"
+          }
+        }
+      ]
+    }
+  ]
+}
