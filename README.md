@@ -26,47 +26,59 @@ The text protocol is the same one as [`chat-agent`](../Agent-Router/chat-agent/)
 
 Prerequisites: Node ≥ 24.9 and the dsh CLI: `npm i -g @deepseek-ai/dsh`.
 
+### Option 1: install from the plugin market (recommended)
+
+```text
+Settings → Plugins → Experimental plugins → turn on "Custom plugin indexes"
+→ Discover → Add index source → enter:
+   https://dazhi666666.github.io/free2agent/index.json
+→ pick free2agent → Install
+```
+
+The plugin lands in the current profile's node_modules and the composition tree gains the `llm-chat-text` row (a DeepSeek example route ships by default).
+
+### Option 2: local path (development or no install)
+
 ```sh
 cd D:\Dsh-Chat-Plugin
 node setup.mjs          # link the peer dependencies from the dsh installation into this project (once)
+dsh --profile web --patch cordis.patch.yml
 ```
 
-Edit `cordis.patch.yml` with your models. Free-source examples: web-page bridges (DeepSeek-Free-API serves a local OpenAI-compatible endpoint), OpenRouter `:free`, local Ollama (subject to each site's current policy):
+### Configure models
+
+Edit your own profile's `cordis.patch.yml` (this replaces the plugin's whole config). Free-source examples — web-page bridges (DeepSeek-Free-API / Chat2API serve a local OpenAI-compatible endpoint), OpenRouter `:free`, local Ollama (subject to each site's current policy):
 
 ```yaml
-- insert:
-    - id: llm-chat-text
-      name: './plugin/src/index.ts'
-      config:
-        providers:
-          # A local endpoint bridged by DeepSeek-Free-API / Chat2API
-          web-deepseek:
-            displayName: DeepSeek Web
-            baseURL: http://127.0.0.1:8000/v1
-            apiKey: bridge-token            # the bridge's own auth token
-            contextWindow: 128000
-            models:
-              - id: deepseek-chat
-                name: DeepSeek V3
-          # OpenRouter free tier
-          openrouter:
-            displayName: OpenRouter Free
-            baseURL: https://openrouter.ai/api/v1
-            apiKeyEnv: OPENROUTER_API_KEY
-            models:
-              - id: deepseek/deepseek-chat-v3.1:free
-          # Local models
-          ollama:
-            displayName: Local Ollama
-            baseURL: http://127.0.0.1:11434/v1
-            noAuth: true
-            models:
-              - id: qwen3:32b
-- id: agent-default-model
+- id: llm-chat-text
   config:
-    provider: web-deepseek
-    model: deepseek-chat
+    providers:
+      # A local endpoint bridged by DeepSeek-Free-API / Chat2API
+      web-deepseek:
+        displayName: DeepSeek Web
+        baseURL: http://127.0.0.1:8000/v1
+        apiKey: bridge-token            # the bridge's own auth token
+        contextWindow: 128000
+        models:
+          - id: deepseek-chat
+            name: DeepSeek V3
+      # OpenRouter free tier
+      openrouter:
+        displayName: OpenRouter Free
+        baseURL: https://openrouter.ai/api/v1
+        apiKeyEnv: OPENROUTER_API_KEY
+        models:
+          - id: deepseek/deepseek-chat-v3.1:free
+      # Local models
+      ollama:
+        displayName: Local Ollama
+        baseURL: http://127.0.0.1:11434/v1
+        noAuth: true
+        models:
+          - id: qwen3:32b
 ```
+
+Default model: pick once in dsh's model picker (it saves as the default automatically), or overlay this repo's `default-model.patch.yml` (`--patch cordis.patch.yml --patch default-model.patch.yml`). Saving hot-reloads.
 
 Launch:
 

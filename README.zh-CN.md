@@ -26,47 +26,59 @@ llm-chat-text adapter（本插件）
 
 前置：Node ≥ 24.9，安装 dsh CLI：`npm i -g @deepseek-ai/dsh`。
 
+### 方式一：插件市场安装（推荐）
+
+```text
+设置 → 插件 → 实验性插件 → 打开「Custom plugin indexes」
+→ Discover → Add index source → 填入：
+   https://dazhi666666.github.io/free2agent/index.json
+→ 选择 free2agent → Install
+```
+
+装完后插件进入当前 profile 的 node_modules，组合树自动出现 `llm-chat-text` 行（出厂带一个 DeepSeek 示例路由）。
+
+### 方式二：本地路径（开发或免发布）
+
 ```sh
 cd D:\Dsh-Chat-Plugin
 node setup.mjs          # 把 dsh 安装里的 peer 依赖链接进本项目（一次性）
+dsh --profile web --patch cordis.patch.yml
 ```
 
-编辑 `cordis.patch.yml`，配置你的模型。免费来源示例：网页端桥接（DeepSeek-Free-API 起一个本地 OpenAI 兼容服务）、OpenRouter `:free`、本地 Ollama（以各站点当前政策为准）：
+### 配置模型
+
+改你自己 profile 的 `cordis.patch.yml`（覆盖插件的整份 config），免费来源示例——网页端桥接（DeepSeek-Free-API / Chat2API 起一个本地 OpenAI 兼容服务）、OpenRouter `:free`、本地 Ollama（以各站点当前政策为准）：
 
 ```yaml
-- insert:
-    - id: llm-chat-text
-      name: './plugin/src/index.ts'
-      config:
-        providers:
-          # DeepSeek-Free-API / Chat2API 桥接出的本地接口
-          web-deepseek:
-            displayName: DeepSeek 网页端
-            baseURL: http://127.0.0.1:8000/v1
-            apiKey: bridge-token            # 桥接项目自己的鉴权 token
-            contextWindow: 128000
-            models:
-              - id: deepseek-chat
-                name: DeepSeek V3
-          # OpenRouter 免费档
-          openrouter:
-            displayName: OpenRouter 免费
-            baseURL: https://openrouter.ai/api/v1
-            apiKeyEnv: OPENROUTER_API_KEY
-            models:
-              - id: deepseek/deepseek-chat-v3.1:free
-          # 本地模型
-          ollama:
-            displayName: 本地 Ollama
-            baseURL: http://127.0.0.1:11434/v1
-            noAuth: true
-            models:
-              - id: qwen3:32b
-- id: agent-default-model
+- id: llm-chat-text
   config:
-    provider: web-deepseek
-    model: deepseek-chat
+    providers:
+      # DeepSeek-Free-API / Chat2API 桥接出的本地接口
+      web-deepseek:
+        displayName: DeepSeek 网页端
+        baseURL: http://127.0.0.1:8000/v1
+        apiKey: bridge-token            # 桥接项目自己的鉴权 token
+        contextWindow: 128000
+        models:
+          - id: deepseek-chat
+            name: DeepSeek V3
+      # OpenRouter 免费档
+      openrouter:
+        displayName: OpenRouter 免费
+        baseURL: https://openrouter.ai/api/v1
+        apiKeyEnv: OPENROUTER_API_KEY
+        models:
+          - id: deepseek/deepseek-chat-v3.1:free
+      # 本地模型
+      ollama:
+        displayName: 本地 Ollama
+        baseURL: http://127.0.0.1:11434/v1
+        noAuth: true
+        models:
+          - id: qwen3:32b
 ```
+
+默认模型：在 dsh 模型选择器里选一次即自动存为默认；或叠加本仓库的 `default-model.patch.yml`（`--patch cordis.patch.yml --patch default-model.patch.yml`）。改完保存即热重载。
 
 启动：
 

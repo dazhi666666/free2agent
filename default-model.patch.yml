@@ -1,0 +1,8 @@
+# 可选：把新会话默认模型指向 llm-chat-text 的某个路由。
+# 这属于个人配置，不随 bundle 分发；需要时在 dsh 里这样叠加：
+#   dsh --profile web --patch <bundle补丁> --patch default-model.patch.yml
+# 或装好插件后在模型选择器里选一次（dsh 会把它存为默认）。
+- id: agent-default-model
+  config:
+    provider: chat-text
+    model: deepseek-chat
